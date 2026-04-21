@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { signIn } from "next-auth/react"
-import { Mail, Lock, User, Github, Chrome } from "lucide-react"
+import { Mail, Lock, User, Github, Globe } from "lucide-react"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -116,7 +116,7 @@ export default function AuthPage() {
             onClick={() => signIn("google")}
             className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 py-2.5 rounded-xl transition-all"
           >
-            <Chrome className="w-4 h-4" />
+            <Globe className="w-4 h-4" />
             <span className="text-sm font-medium">Google</span>
           </button>
           <button className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 py-2.5 rounded-xl transition-all">
