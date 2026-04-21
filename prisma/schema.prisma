@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum QuestionType {
+  MCQ
+  SHORT_ANSWER
+  CODING
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(STUDENT)
+  accounts      Account[]
+  sessions      Session[]
+  submissions   Submission[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Exam {
+  id             String       @id @default(cuid())
+  title          String
+  description    String?
+  duration       Int          // in minutes
+  passingPercent Int          @default(40)
+  startTime      DateTime
+  endTime        DateTime
+  isPublished    Boolean      @default(false)
+  questions      Question[]
+  submissions    Submission[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Question {
+  id           String       @id @default(cuid())
+  examId       String
+  type         QuestionType
+  content      String       @db.Text
+  marks        Int          @default(1)
+  explanation  String?      @db.Text
+  options      Json?        // For MCQ: Array of {text: string, isCorrect: boolean}
+  correctAnswer String?     @db.Text // For Short Answer
+  testCases    Json?        // For Coding: Array of {input: string, output: string}
+  exam         Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+}
+
+model Submission {
+  id           String    @id @default(cuid())
+  userId       String
+  examId       String
+  answers      Json      // Map of QuestionId -> Answer
+  score        Int?
+  startTime    DateTime  @default(now())
+  endTime      DateTime?
+  status       String    @default("STARTED") // STARTED, SUBMITTED
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam         Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+}
