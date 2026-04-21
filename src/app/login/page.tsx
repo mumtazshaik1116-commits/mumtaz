@@ -8,12 +8,34 @@ import { Mail, Lock, User, Code, Globe } from "lucide-react"
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [fullName, setFullName] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Implement auth logic
-    setTimeout(() => setLoading(false), 2000)
+    
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (res?.ok) {
+        // In a real app we'd check session, for now redirect based on email
+        if (email.includes("admin")) {
+          window.location.href = "/admin"
+        } else {
+          window.location.href = "/student"
+        }
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -57,6 +79,8 @@ export default function AuthPage() {
                 <input 
                   type="text" 
                   placeholder="John Doe" 
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-[#0050FF]/50 focus:ring-1 focus:ring-[#0050FF]/50 transition-all"
                   required
                 />
@@ -71,6 +95,8 @@ export default function AuthPage() {
               <input 
                 type="email" 
                 placeholder="name@company.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-[#0050FF]/50 focus:ring-1 focus:ring-[#0050FF]/50 transition-all"
                 required
               />
@@ -87,6 +113,8 @@ export default function AuthPage() {
               <input 
                 type="password" 
                 placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-[#0050FF]/50 focus:ring-1 focus:ring-[#0050FF]/50 transition-all"
                 required
               />
