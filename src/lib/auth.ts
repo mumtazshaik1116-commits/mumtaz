@@ -32,7 +32,9 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null
 
-        // In a real app, verify password here
+        // For demo: pass if password matches a simple pattern
+        if (credentials.password.length < 6) return null
+
         return user
       },
     }),
